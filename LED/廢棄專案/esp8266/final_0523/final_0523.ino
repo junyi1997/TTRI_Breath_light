@@ -1,13 +1,13 @@
 //http://IP位置/cmd?LED_Num=1&Light_Num=2&Breathe_Speed=2&Choose_Light=2
-//http://192.168.100.5/cmd?LED_Num=10&Light_Num=540&Breathe_Speed=15&Choose_Light=0
-#include <WiFi.h>      // 提供Wi-Fi功能的程式庫
-#include <WebServer.h>  // 提供網站伺服器功能的程式庫
+//http://192.168.100.8/cmd?LED_Num=10&Light_Num=540&Breathe_Speed=15&Choose_Light=0
+#include <ESP8266WiFi.h>      // 提供Wi-Fi功能的程式庫
+#include <ESP8266WebServer.h>  // 提供網站伺服器功能的程式庫
 ///////////////////////////
-#define SSID   "19-1H5F"
-#define PASSWORD  "2268159779"
+#define SSID   "IFTTT"
+#define PASSWORD  ""
 ///////////////////////////
-WebServer server(80);   // 宣告網站伺服器物件與埠號
-//unsigned long t1,t2;
+ESP8266WebServer server(80);   // 宣告網站伺服器物件與埠號
+
 String LED_num,Light_num,Breathe_speed,Choose_light;
 int led_num,light_num,breathe_speed,choose_light;
 /*
@@ -16,7 +16,7 @@ int led_num,light_num,breathe_speed,choose_light;
  * Breathe_speed  呼吸速度
  * choose_light   1-->呼吸燈  0-->一般燈
  */
-int pin[10] = {25,26,27,14,12,13,5,17,16,4};
+int pin[10] = {1,2,3,4,5,6,7,8,12,0};
 
 #include <EEPROM.h>
 
@@ -30,23 +30,20 @@ void rootRouter() {
 }
 
 void setup() {
-  
-  Serial.begin(115200);
+
+  Serial.begin(9600);
   for(int i = 0 ; i < 10;i++){pinMode(pin[i], OUTPUT);}
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {delay(1);}
+
    Serial.println(WiFi.localIP());
     Serial.println("-----------------------------------------------------");
     server.on("/index.html", rootRouter); //處理首頁連結請求的事件
     server.on("/", rootRouter);
     server.on("/cmd", []() {
   ////////////////////////////////(若要加入更多筆資料，請由此下手)      
-      /*LED_num="0";
-      Light_num="0";
-      Breathe_speed="0";
-      Choose_light="0";*/
     
       LED_num=server.arg("LED_Num");
       Light_num=server.arg("Light_Num");
@@ -60,8 +57,6 @@ void setup() {
       EEPROM.write(5, Breathe_speed.toInt()); 
       EEPROM.write(6, Choose_light.toInt()); 
       EEPROM.commit(); 
-      
-      //Serial.println("已更新");
       
   ////////////////////////////////(若要加入更多筆資料，請由此下手)
       Serial.flush();
@@ -78,8 +73,8 @@ void loop() {
   server.handleClient();  // 處理用戶連線
   eeprom();
 
-  if(Choose_light=="1"){pwmLed();}//{pwmLed(LED_num.toInt(),Light_num.toInt());}//pwmLed(幾顆LED上限10,亮度上限1000)
-  else{breathing();}//{breathing(LED_num.toInt(),Breathe_speed.toInt());}//breathing(幾顆LED上限10,延遲多久上限15)}
+  if(Choose_light=="1"){pwmLed();}
+  else{breathing();}
   
 }
 void eeprom(){
@@ -106,7 +101,7 @@ void eeprom(){
   Serial.println(choose_light);
   }
 
-//void breathing (int pinnum,int delaynum){
+
 void breathing(){
    for(int a =0;a<light_num;a++){
     server.handleClient();  // 處理用戶連線
@@ -127,7 +122,7 @@ void breathing(){
     }
   } 
 }
-//void pwmLed(int pinnum , int light){
+
 void pwmLed(){
   for(int i = 0 ; i < led_num ; i++){
     digitalWrite(pin[i], HIGH);
