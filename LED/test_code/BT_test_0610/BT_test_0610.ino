@@ -3,7 +3,7 @@ BluetoothSerial SerialBT;        //宣告藍芽物件=SerialBT
 int val;
 String LED_num,Light_num,Choose_light,F;
 int led_num,light_num,choose_light,f;
-float HZ=10.00;
+float HZ=20.00;
 /*
  * LED_num        幾顆LED同時動作
  * Light_num      LED亮度
@@ -58,7 +58,7 @@ void loop() {
 void eeprom(){
 
   led_num=EEPROM.read(0); 
-  light_num=(EEPROM.read(1)+EEPROM.read(2)+EEPROM.read(3)+EEPROM.read(4))*(100000/HZ/1000);
+  light_num=(EEPROM.read(1)+EEPROM.read(2)+EEPROM.read(3)+EEPROM.read(4))*(1000000/HZ/1000);
   choose_light=EEPROM.read(5);
   f=EEPROM.read(6)*100;
   
@@ -84,22 +84,28 @@ void breathing(){
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], HIGH);}
     delayMicroseconds(a); // Approximately 10% duty cycle @ 1KHz
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], LOW);}
-    delayMicroseconds((100000/HZ) - a);
+    delayMicroseconds((1000000/HZ) - a);
   }
   for(int a =light_num;a>1600;a-=10){
     if(SerialBT.available() ) {break;}
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], HIGH);}
     delayMicroseconds(a); // Approximately 10% duty cycle @ 1KHz
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], LOW);}
-    delayMicroseconds((100000/HZ) - a);
+    delayMicroseconds((1000000/HZ) - a);
   } 
 }
 
 void pwmLed(){
+  /*for(int i = 0 ; i < led_num ; i++){
+    digitalWrite(pin[i], HIGH);
+    delayMicroseconds(light_num);
+    digitalWrite(pin[i], LOW);
+    delayMicroseconds((1000000/HZ) - light_num); 
+  }*/
   for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], HIGH);}
   delayMicroseconds(light_num); // Approximately 10% duty cycle @ 1KHz
   for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], LOW);}
-  delayMicroseconds((100000/HZ) - light_num); 
+  delayMicroseconds((1000000/HZ) - light_num); 
 }
 
 void forward(){
