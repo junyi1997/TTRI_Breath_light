@@ -76,6 +76,9 @@ void eeprom(){
 
   Serial.print("f：");
   Serial.println(f);
+
+  Serial.print("H：");
+  Serial.println((1000000/HZ) - light_num);
   }
 
 void breathing(){
