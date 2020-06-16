@@ -2,8 +2,8 @@
 BluetoothSerial SerialBT;        //宣告藍芽物件=SerialBT
 int val;
 String LED_num,Light_num,Choose_light,F;
-int led_num,light_num,choose_light,f;
-float HZ=20.00;
+int led_num,light_num,choose_light,f,f1;
+float HZ=100.00;
 /*
  * LED_num        幾顆LED同時動作
  * Light_num      LED亮度
@@ -16,7 +16,7 @@ int i = 0,j=0;
 void setup() {
   SerialBT.begin("TTRI_Breath_light");//<<藍芽名稱，請自己記得   
   Serial.begin(115200);
-  for(int i = 0 ; i < 10;i++){pinMode(pin[i], OUTPUT);}
+  for(int i = 0 ; i < 10;i++){pinMode(pin[i], OUTPUT);digitalWrite(pin[i],LOW);}
   EEPROM.begin(7); 
 }
 void loop() {
@@ -61,6 +61,7 @@ void eeprom(){
   light_num=(EEPROM.read(1)+EEPROM.read(2)+EEPROM.read(3)+EEPROM.read(4))*(1000000/HZ/1000);
   choose_light=EEPROM.read(5);
   f=EEPROM.read(6)*100;
+  f1=EEPROM.read(6)*5;
   
   Serial.print("LED_num：");
   //Serial.println(LED_num.toInt());
@@ -82,14 +83,14 @@ void eeprom(){
   }
 
 void breathing(){
-   for(int a =1600;a<light_num;a+=10){
+   for(int a =0;a<light_num*0.8;a+=f1){
     if(SerialBT.available() ) {break;}
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], HIGH);}
     delayMicroseconds(a); // Approximately 10% duty cycle @ 1KHz
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], LOW);}
     delayMicroseconds((1000000/HZ) - a);
   }
-  for(int a =light_num;a>1600;a-=10){
+  for(int a =light_num*0.8;a>0;a-=f1){
     if(SerialBT.available() ) {break;}
     for(int i = 0 ; i < led_num ; i++){digitalWrite(pin[i], HIGH);}
     delayMicroseconds(a); // Approximately 10% duty cycle @ 1KHz
@@ -122,7 +123,7 @@ void forward(){
 }
 
 void back(){
-  for(int i = 10 ; i > 0 ; i--){
+  for(int i = 9 ; i > -1 ; i--){
     if(SerialBT.available() ) {break;}
     digitalWrite(pin[i], HIGH);
     delay(f); // Approximately 10% duty cycle @ 1KHz
