@@ -9,15 +9,17 @@ float HZ=100.00;
  * Light_num      LED亮度
  * choose_light   1-->呼吸燈  0-->一般燈
  */
-int pin[10] = {25,26,27,14,12,13,5,17,16,4};
+//int pin[10] = {25,26,27,14,12,13,5,17,16,4};//25,26,27,14,12,13,4,16,17,5
+int pin[10] = {25,26,27,19,12,13,4,16,17,21};
 #include <EEPROM.h>
 
 int i = 0,j=0;
 void setup() {
+  for(int i = 0 ; i < 10;i++){pinMode(pin[i], OUTPUT);digitalWrite(pin[i],LOW);}
   SerialBT.begin("TTRI_Breath_light");//<<藍芽名稱，請自己記得   
   Serial.begin(115200);
-  for(int i = 0 ; i < 10;i++){pinMode(pin[i], OUTPUT);digitalWrite(pin[i],LOW);}
   EEPROM.begin(7); 
+  delay(1000);
 }
 void loop() {
   if(SerialBT.available() ) {
@@ -61,7 +63,7 @@ void eeprom(){
   light_num=(EEPROM.read(1)+EEPROM.read(2)+EEPROM.read(3)+EEPROM.read(4))*(1000000/HZ/1000);
   choose_light=EEPROM.read(5);
   f=EEPROM.read(6)*100;
-  f1=EEPROM.read(6)*5;
+  f1=light_num*0.8/(EEPROM.read(6)*100);
   
   Serial.print("LED_num：");
   //Serial.println(LED_num.toInt());
